@@ -1,5 +1,5 @@
 {
-  "name": "bun-trivy-scanner",
+  "name": "@nikpivkin/bun-trivy-scanner",
   "description": "Trivy-based security scanner plugin for Bun",
   "version": "0.0.1",
   "author": "nikpivkin",
@@ -38,5 +38,10 @@
   },
   "dependencies": {
     "@cyclonedx/cyclonedx-library": "^10.0.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "packageManager": "bun@1.3.10"
 }

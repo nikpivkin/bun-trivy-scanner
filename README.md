@@ -11,7 +11,7 @@ dependency installation, addition, or when running `bun pm scan`.
 
 ```toml
 [install.security]
-scanner = "bun-trivy-scanner"
+scanner = "@nikpivkin/bun-trivy-scanner"
 ```
 
 2. Run the security scanner manually (or it will run automatically during install/add):
