@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://github.com/aquasecurity/trivy/raw/refs/tags/v0.69.3/schema/trivy-config.json
+
+severity:
+ - MEDIUM
+ - HIGH
+ - CRITICAL
