@@ -7,14 +7,23 @@ dependency installation, addition, or when running `bun pm scan`.
 
 ## Usage
 
-1. Add the scanner to your Bun project configuration:
+1. Install the scanner:
+
+```bash
+bun add --dev @nikpivkin/bun-trivy-scanner
+```
+
+
+2. Add the scanner to your Bun project configuration:
 
 ```toml
 [install.security]
 scanner = "@nikpivkin/bun-trivy-scanner"
 ```
 
-2. Run the security scanner manually (or it will run automatically during install/add):
+3. The scanner will automatically run during dependency installation and addition.
+
+You can also run it manually:
 
 ```bash
 bun pm scan

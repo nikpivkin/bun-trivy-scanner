@@ -1,2 +1,2 @@
 [install.security]
-scanner = ".."
+scanner = "@nikpivkin/bun-trivy-scanner"
