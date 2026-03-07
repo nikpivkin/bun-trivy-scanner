@@ -1,0 +1,42 @@
+{
+  "name": "bun-trivy-scanner",
+  "description": "Trivy-based security scanner plugin for Bun",
+  "version": "0.0.1",
+  "author": "nikpivkin",
+  "license": "MIT",
+  "module": "index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "files": [
+    "index.ts",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikpivkin/bun-trivy-scanner"
+  },
+  "homepage": "https://github.com/nikpivkin/bun-trivy-scanner",
+  "keywords": [
+    "bun",
+    "security",
+    "provider",
+    "trivy",
+    "vulnerability"
+  ],
+  "scripts": {
+    "format": "bunx prettier --write ."
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^25.3.5",
+    "prettier": "^3.8.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@cyclonedx/cyclonedx-library": "^10.0.0"
+  }
+}
