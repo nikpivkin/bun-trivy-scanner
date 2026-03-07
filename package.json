@@ -26,11 +26,13 @@
     "vulnerability"
   ],
   "scripts": {
-    "format": "bunx prettier --write ."
+    "format": "bunx prettier --write .",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^25.3.5",
+    "husky": "^9.1.7",
     "prettier": "^3.8.1"
   },
   "peerDependencies": {

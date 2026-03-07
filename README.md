@@ -13,7 +13,6 @@ dependency installation, addition, or when running `bun pm scan`.
 bun add --dev @nikpivkin/bun-trivy-scanner
 ```
 
-
 2. Add the scanner to your Bun project configuration:
 
 ```toml
