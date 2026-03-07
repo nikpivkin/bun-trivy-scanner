@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@nikpivkin/bun-trivy-scanner": "^0.0.1",
     "@types/bun": "latest"
   }
 }
