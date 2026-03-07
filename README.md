@@ -2,27 +2,32 @@
 
 This package implements the [Security Scanner API](https://bun.com/docs/pm/security-scanner-api) for Bun.
 
-The scanner integrates with Bun's package manager security workflow and automatically invoked during
+The scanner integrates with Bun's package manager security workflow and is automatically invoked during
 dependency installation, addition, or when running `bun pm scan`.
 
-## Usage
+## Features
 
-1. Install the scanner:
+- Native integration with Bun
+- Small codebase with minimal external dependencies — easier to audit and maintain
+- Lightweight wrapper over Trivy with minimal abstraction layer
+- Full support for Trivy functionality without feature limitations
+
+## Installation
 
 ```bash
 bun add --dev @nikpivkin/bun-trivy-scanner
 ```
 
-2. Add the scanner to your Bun project configuration:
+## Configuration
 
 ```toml
 [install.security]
 scanner = "@nikpivkin/bun-trivy-scanner"
 ```
 
-3. Trivy configuration (optional)
+## Trivy configuration (optional)
 
-You can configure Trivy by creating a `trivy.yaml` file in the project root directory 
+You can configure Trivy by creating a `trivy.yaml` file in the project root directory
 (the directory where Bun is executed).
 
 Example configuration:
@@ -34,14 +39,14 @@ server:
   addr: http://0.0.0.0:10000
 
 severity:
- - MEDIUM
- - HIGH
- - CRITICAL
+  - MEDIUM
+  - HIGH
+  - CRITICAL
 ```
 
-If the configuration file exists in the project root, Trivy will automatically load it during scanning.
+If the configuration file exists in the project root, it will be automatically loaded during scanning.
 
-4. Run scanner
+## Usage
 
 The scanner will automatically run during dependency installation and addition.
 
@@ -49,4 +54,37 @@ You can also run it manually:
 
 ```bash
 bun pm scan
+```
+
+## Scanner in action
+
+```
+❯ bun add lodash@4.17.20
+bun add v1.3.10 (30e609e0)
+2026-03-07T16:53:48+06:00       INFO    Loaded  file_path="trivy.yaml"
+2026-03-07T16:53:48+06:00       INFO    [vuln] Vulnerability scanning is enabled
+2026-03-07T16:53:48+06:00       INFO    Detected SBOM format    format="cyclonedx-json"
+2026-03-07T16:53:48+06:00       WARN    Third-party SBOM may lead to inaccurate vulnerability detection
+2026-03-07T16:53:48+06:00       WARN    Recommend using Trivy to generate SBOMs
+2026-03-07T16:53:48+06:00       INFO    Number of language-specific files       num=1
+2026-03-07T16:53:48+06:00       INFO    [node-pkg] Detecting vulnerabilities...
+
+  WARNING: lodash
+    via  › lodash
+    nodejs-lodash: command injection via template
+    https://avd.aquasec.com/nvd/cve-2021-23337
+
+  WARNING: lodash
+    via  › lodash
+    nodejs-lodash: ReDoS via the toNumber, trim and trimEnd functions
+    https://avd.aquasec.com/nvd/cve-2020-28500
+
+  WARNING: lodash
+    via  › lodash
+    lodash: prototype pollution in _.unset and _.omit functions
+    https://avd.aquasec.com/nvd/cve-2025-13465
+
+3 advisories (3 warnings)
+
+Security warnings found. Continue anyway? [y/N]
 ```
