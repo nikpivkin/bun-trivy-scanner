@@ -42,7 +42,7 @@ function buildBom(packages: Bun.Security.Package[]) {
   return serializer.serialize(bom);
 }
 
-const fatalSeverity = process.env.BUN_TRIVY_SCANNER_FATAL_SEVERITY;
+const fatalSeverity = process.env.BUN_TRIVY_SCANNER_FATAL_SEVERITY?.toUpperCase();
 const SEVERITY_ORDER = ['UNKNOWN', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
 function severityToLevel(sev: string): 'fatal' | 'warn' {
@@ -50,7 +50,7 @@ function severityToLevel(sev: string): 'fatal' | 'warn' {
     return 'warn';
   }
 
-  if (SEVERITY_ORDER.indexOf(sev) >= SEVERITY_ORDER.indexOf(fatalSeverity)) {
+  if (SEVERITY_ORDER.indexOf(sev.toUpperCase()) >= SEVERITY_ORDER.indexOf(fatalSeverity)) {
     return 'fatal';
   }
 
