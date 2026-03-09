@@ -3,6 +3,8 @@ import { join } from 'node:path';
 
 import { Models, Enums, Serialize, Spec } from '@cyclonedx/cyclonedx-library';
 
+const reportPath = process.env.BUN_TRIVY_SCANNER_REPORT_PATH;
+
 export const scanner: Bun.Security.Scanner = {
   version: '1',
   async scan(info: { packages: Bun.Security.Package[] }): Promise<Bun.Security.Advisory[]> {
@@ -21,6 +23,9 @@ export const scanner: Bun.Security.Scanner = {
     const proc = Bun.spawn([trivyPath, 'sbom', '--format', 'json', file]);
 
     const result = await proc.stdout.json();
+    if (reportPath) {
+      await Bun.write(reportPath, JSON.stringify(result, null, 2))
+    }
     return convert(result);
   },
 };

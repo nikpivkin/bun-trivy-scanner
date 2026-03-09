@@ -43,6 +43,16 @@ If a vulnerability with this severity or higher is detected, the installation
 will fail. Otherwise, advisories are reported as warnings and the user can
 choose whether to continue.
 
+Additionally, you can specify a custom path to save the Trivy JSON report
+for manual inspection:
+
+```bash
+export BUN_TRIVY_SCANNER_REPORT_PATH=/path/to/report.json
+```
+
+If this variable is not set, the scanner will store the report in a temporary
+directory (default behavior).
+
 ### Trivy configuration (optional)
 
 You can configure Trivy by creating a `trivy.yaml` file in the project root directory
