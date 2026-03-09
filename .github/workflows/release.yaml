@@ -27,5 +27,6 @@ jobs:
 
       - name: Publish package
         run: |
-          TARBALL=$(bun pm pack --quiet)
-          bunx npm publish "$TARBALL" --provenance --access public
+          bun pm pack
+          tarball=$(ls *.tgz)
+          bunx npm publish "$tarball" --provenance --access public
