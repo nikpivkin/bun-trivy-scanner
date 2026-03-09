@@ -1,7 +1,7 @@
 {
   "name": "@nikpivkin/bun-trivy-scanner",
   "description": "Trivy-based security scanner plugin for Bun",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "nikpivkin",
   "license": "MIT",
   "module": "index.ts",
