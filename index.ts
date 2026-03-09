@@ -42,13 +42,18 @@ function buildBom(packages: Bun.Security.Package[]) {
   return serializer.serialize(bom);
 }
 
+const fatalSeverity = process.env.BUN_TRIVY_SCANNER_FATAL_SEVERITY;
+const SEVERITY_ORDER = ['UNKNOWN', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+
 function severityToLevel(sev: string): 'fatal' | 'warn' {
-  // Bun does not provide a way for users to configure scanners or pass
-  // scanner-specific options. Because of this, we cannot let users decide
-  // which vulnerability severities should abort the installation.
-  // Returning "fatal" would unconditionally stop installs.
-  // Returning "warn" ensures Bun still reports the advisory and lets the
-  // user decide whether to continue.
+  if (!fatalSeverity) {
+    return 'warn';
+  }
+
+  if (SEVERITY_ORDER.indexOf(sev) >= SEVERITY_ORDER.indexOf(fatalSeverity)) {
+    return 'fatal';
+  }
+
   return 'warn';
 }
 

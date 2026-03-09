@@ -21,12 +21,29 @@ bun add --dev @nikpivkin/bun-trivy-scanner
 
 ## Configuration
 
+### Bun configuration
+
 ```toml
 [install.security]
 scanner = "@nikpivkin/bun-trivy-scanner"
 ```
 
-## Trivy configuration (optional)
+### Scanner behavior
+
+You can control which vulnerability severity aborts installation by setting an
+**environment variable**:
+
+```bash
+export BUN_TRIVY_SCANNER_FATAL_SEVERITY=CRITICAL
+```
+
+Valid values are: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
+
+If a vulnerability with this severity or higher is detected, the installation
+will fail. Otherwise, advisories are reported as warnings and the user can
+choose whether to continue.
+
+### Trivy configuration (optional)
 
 You can configure Trivy by creating a `trivy.yaml` file in the project root directory
 (the directory where Bun is executed).
