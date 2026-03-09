@@ -2,15 +2,16 @@
 
 This package implements the [Security Scanner API](https://bun.com/docs/pm/security-scanner-api) for Bun.
 
-The scanner integrates with Bun's package manager security workflow and is automatically invoked during
-dependency installation, addition, or when running `bun pm scan`.
+The scanner integrates with Bun's package manager security workflow and uses
+[Trivy](https://github.com/aquasecurity/trivy) for vulnerability detection.
+It runs automatically during dependency installation, addition, or when executing `bun pm scan`.
 
 ## Features
 
 - Native integration with Bun
 - Small codebase with minimal external dependencies — easier to audit and maintain
-- Lightweight wrapper over Trivy with minimal abstraction layer
-- Full support for Trivy functionality without feature limitations
+- Thin wrapper around Trivy
+- Supports the full Trivy feature set
 
 ## Installation
 
@@ -45,6 +46,14 @@ severity:
 ```
 
 If the configuration file exists in the project root, it will be automatically loaded during scanning.
+
+Alternatively, Trivy can be configured using environment variables supported by Trivy
+(for example `TRIVY_SEVERITY` or `TRIVY_SERVER_ADDR`).
+
+See the Trivy documentation for more details:
+
+- Config file: https://trivy.dev/docs/latest/guide/references/configuration/config-file/
+- Environment variables: https://trivy.dev/docs/latest/guide/configuration/#environment-variables
 
 ## Usage
 
