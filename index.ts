@@ -71,7 +71,7 @@ function convert(result: TrivyOutput): Bun.Security.Advisory[] {
         level: severityToLevel(v.Severity),
         package: v.PkgName,
         url: v.PrimaryURL ?? null,
-        description: v.Title ?? null,
+        description: `(${v.Severity}) ${v.Title}\n\n  ${v.Description}`,
       });
     }
   }
@@ -81,10 +81,9 @@ function convert(result: TrivyOutput): Bun.Security.Advisory[] {
 
 interface TrivyVulnerability {
   PkgName: string;
-  InstalledVersion?: string;
-  VulnerabilityID?: string;
   Severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
-  Title?: string;
+  Title: string;
+  Description: string;
   PrimaryURL?: string;
 }
 
