@@ -1,3 +1,4 @@
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,23 +16,36 @@ export const scanner: Bun.Security.Scanner = {
       );
     }
 
+    if (fatalSeverity && !SEVERITY_ORDER.includes(fatalSeverity)) {
+      throw new Error(
+        `Invalid BUN_TRIVY_SCANNER_FATAL_SEVERITY value "${fatalSeverity}". ` +
+          `Valid values are: ${SEVERITY_ORDER.join(', ')}.`,
+      );
+    }
+
     const sbom = buildBom(info.packages);
 
     const file = join(tmpdir(), `bun-trivy-${crypto.randomUUID()}.json`);
     await Bun.write(file, sbom);
 
-    const proc = Bun.spawn([trivyPath, 'sbom', '--format', 'json', file], {
-      env: { TRIVY_QUIET: 'true', ...process.env },
-    });
+    let output: string;
+    try {
+      const proc = Bun.spawn([trivyPath, 'sbom', '--format', 'json', file], {
+        env: { TRIVY_QUIET: 'true', ...process.env },
+      });
 
-    const [output, exitCode] = await Promise.all([proc.stdout.text(), proc.exited]);
-    if (exitCode !== 0) {
-      throw new Error(`Trivy exited with code ${exitCode}`);
+      let exitCode: number;
+      [output, exitCode] = await Promise.all([proc.stdout.text(), proc.exited]);
+      if (exitCode !== 0) {
+        throw new Error(`Trivy exited with code ${exitCode}`);
+      }
+    } finally {
+      await rm(file, { force: true });
     }
 
     const result = JSON.parse(output);
     if (reportPath) {
-      await Bun.write(reportPath, JSON.stringify(result, null, 2))
+      await Bun.write(reportPath, JSON.stringify(result, null, 2));
     }
     return convert(result);
   },
@@ -78,7 +92,7 @@ function convert(result: TrivyOutput): Bun.Security.Advisory[] {
         level: severityToLevel(v.Severity),
         package: v.PkgName,
         url: v.PrimaryURL ?? null,
-        description: `(${v.Severity}) ${v.Title}\n\n  ${v.Description}`,
+        description: formatDescription(v),
       });
     }
   }
@@ -86,11 +100,24 @@ function convert(result: TrivyOutput): Bun.Security.Advisory[] {
   return advisories;
 }
 
+// Trivy omits empty Title and Description fields
+function formatDescription(v: TrivyVulnerability): string {
+  let description = `(${v.Severity}) ${v.VulnerabilityID}`;
+  if (v.Title) {
+    description += `: ${v.Title}`;
+  }
+  if (v.Description) {
+    description += `\n\n  ${v.Description}`;
+  }
+  return description;
+}
+
 interface TrivyVulnerability {
+  VulnerabilityID: string;
   PkgName: string;
   Severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
-  Title: string;
-  Description: string;
+  Title?: string;
+  Description?: string;
   PrimaryURL?: string;
 }
 

@@ -1,5 +1,5 @@
 import { expect, setDefaultTimeout, test } from 'bun:test';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -45,6 +45,7 @@ test('warns about a vulnerable package and cancels install without a TTY', async
   expect(exitCode).toBe(1);
   expect(output).toContain('WARNING: lodash');
   expect(output).not.toContain('FATAL: lodash');
+  expect(output).toContain('(HIGH) CVE-2021-23337: nodejs-lodash: command injection via template');
   expect(output).toContain('https://avd.aquasec.com/nvd/cve-2021-23337');
   expect(await Bun.file(join(cwd, 'node_modules/lodash/package.json')).exists()).toBe(false);
 });
@@ -57,6 +58,29 @@ test('reports fatal advisories at or above BUN_TRIVY_SCANNER_FATAL_SEVERITY', as
   expect(exitCode).toBe(1);
   expect(output).toMatch(/FATAL: lodash\s+via\s+› lodash\s+\(HIGH\)/);
   expect(output).toMatch(/WARNING: lodash\s+via\s+› lodash\s+\(MEDIUM\)/);
+});
+
+test('fails on an invalid BUN_TRIVY_SCANNER_FATAL_SEVERITY', async () => {
+  const { output, exitCode } = await bunAdd('lodash@4.17.20', {
+    BUN_TRIVY_SCANNER_FATAL_SEVERITY: 'CRTICAL',
+  });
+
+  expect(exitCode).toBe(1);
+  expect(output).toContain('Invalid BUN_TRIVY_SCANNER_FATAL_SEVERITY value "CRTICAL"');
+});
+
+test('removes the temporary SBOM file', async () => {
+  const dir = await tempDir();
+
+  try {
+    const { output } = await bunAdd('lodash@4.17.20', { TMPDIR: dir });
+
+    expect(output).toContain('WARNING: lodash');
+    const leftovers = (await readdir(dir)).filter((name) => name.startsWith('bun-trivy-'));
+    expect(leftovers).toEqual([]);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test('installs a package without vulnerabilities', async () => {
