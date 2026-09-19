@@ -20,9 +20,16 @@ export const scanner: Bun.Security.Scanner = {
     const file = join(tmpdir(), `bun-trivy-${crypto.randomUUID()}.json`);
     await Bun.write(file, sbom);
 
-    const proc = Bun.spawn([trivyPath, 'sbom', '--format', 'json', file]);
+    const proc = Bun.spawn([trivyPath, 'sbom', '--format', 'json', file], {
+      env: { TRIVY_QUIET: 'true', ...process.env },
+    });
 
-    const result = await proc.stdout.json();
+    const [output, exitCode] = await Promise.all([proc.stdout.text(), proc.exited]);
+    if (exitCode !== 0) {
+      throw new Error(`Trivy exited with code ${exitCode}`);
+    }
+
+    const result = JSON.parse(output);
     if (reportPath) {
       await Bun.write(reportPath, JSON.stringify(result, null, 2))
     }

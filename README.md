@@ -82,6 +82,16 @@ See the Trivy documentation for more details:
 - Config file: https://trivy.dev/docs/latest/guide/references/configuration/config-file/
 - Environment variables: https://trivy.dev/docs/latest/guide/configuration/#environment-variables
 
+### Trivy logs
+
+The scanner runs Trivy in quiet mode, so only Trivy errors are shown. On the
+first run Trivy downloads its vulnerability database (about 100 MB), which may
+take a while. To see Trivy logs and download progress, set:
+
+```bash
+export TRIVY_QUIET=false
+```
+
 ## Usage
 
 The scanner will automatically run during dependency installation and addition.
@@ -97,13 +107,6 @@ bun pm scan
 ```
 ❯ bun add lodash@4.17.20
 bun add v1.3.10 (30e609e0)
-2026-03-07T16:53:48+06:00       INFO    Loaded  file_path="trivy.yaml"
-2026-03-07T16:53:48+06:00       INFO    [vuln] Vulnerability scanning is enabled
-2026-03-07T16:53:48+06:00       INFO    Detected SBOM format    format="cyclonedx-json"
-2026-03-07T16:53:48+06:00       WARN    Third-party SBOM may lead to inaccurate vulnerability detection
-2026-03-07T16:53:48+06:00       WARN    Recommend using Trivy to generate SBOMs
-2026-03-07T16:53:48+06:00       INFO    Number of language-specific files       num=1
-2026-03-07T16:53:48+06:00       INFO    [node-pkg] Detecting vulnerabilities...
 
   WARNING: lodash
     via  › lodash
@@ -123,4 +126,25 @@ bun add v1.3.10 (30e609e0)
 3 advisories (3 warnings)
 
 Security warnings found. Continue anyway? [y/N]
+```
+
+## Development
+
+End-to-end tests run `bun add` in the `test` directory with the local scanner.
+They require Trivy in `PATH` and network access to the npm registry.
+
+```bash
+bun install
+bun run test
+```
+
+Instead of downloading the full Trivy database, the tests use a minimal one
+from `test/testdata/trivy-cache/db`, which contains advisories only for the
+packages used in the tests. To rebuild it, for example after adding a package
+to the tests, run `trivy image --download-db-only` to get the full database
+and pass it with the package list (on Linux the database is in `~/.cache/trivy/db`):
+
+```bash
+cd test/testdata/trivy-cache
+go run . ~/Library/Caches/trivy/db/trivy.db lodash is-number
 ```
