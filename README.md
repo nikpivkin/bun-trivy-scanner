@@ -106,24 +106,34 @@ bun pm scan
 
 ```
 ❯ bun add lodash@4.17.20
-bun add v1.3.10 (30e609e0)
+bun add v1.4.2 (744846f84)
 
   WARNING: lodash
     via  › lodash
-    nodejs-lodash: command injection via template
+    (HIGH) CVE-2021-23337: nodejs-lodash: command injection via template
     https://avd.aquasec.com/nvd/cve-2021-23337
 
   WARNING: lodash
     via  › lodash
-    nodejs-lodash: ReDoS via the toNumber, trim and trimEnd functions
+    (HIGH) CVE-2026-4800: lodash: lodash: Arbitrary code execution via untrusted input in template imports
+    https://avd.aquasec.com/nvd/cve-2026-4800
+
+  WARNING: lodash
+    via  › lodash
+    (MEDIUM) CVE-2020-28500: nodejs-lodash: ReDoS via the toNumber, trim and trimEnd functions
     https://avd.aquasec.com/nvd/cve-2020-28500
 
   WARNING: lodash
     via  › lodash
-    lodash: prototype pollution in _.unset and _.omit functions
+    (MEDIUM) CVE-2025-13465: lodash: prototype pollution in _.unset and _.omit functions
     https://avd.aquasec.com/nvd/cve-2025-13465
 
-3 advisories (3 warnings)
+  WARNING: lodash
+    via  › lodash
+    (MEDIUM) CVE-2026-2950: lodash: Lodash: Prototype pollution allows deletion of built-in prototype properties via array path bypass
+    https://avd.aquasec.com/nvd/cve-2026-2950
+
+5 advisories (5 warnings)
 
 Security warnings found. Continue anyway? [y/N]
 ```

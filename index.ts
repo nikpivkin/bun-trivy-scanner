@@ -106,16 +106,10 @@ function convert(result: TrivyOutput): Bun.Security.Advisory[] {
   return advisories;
 }
 
-// Trivy omits empty Title and Description fields
+// Trivy omits an empty Title
 function formatDescription(v: TrivyVulnerability): string {
-  let description = `(${v.Severity}) ${v.VulnerabilityID}`;
-  if (v.Title) {
-    description += `: ${v.Title}`;
-  }
-  if (v.Description) {
-    description += `\n\n  ${v.Description}`;
-  }
-  return description;
+  const description = `(${v.Severity}) ${v.VulnerabilityID}`;
+  return v.Title ? `${description}: ${v.Title}` : description;
 }
 
 interface TrivyVulnerability {
@@ -123,7 +117,6 @@ interface TrivyVulnerability {
   PkgName: string;
   Severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
   Title?: string;
-  Description?: string;
   PrimaryURL?: string;
 }
 

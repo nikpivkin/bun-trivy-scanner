@@ -47,6 +47,8 @@ test('warns about a vulnerable package and cancels install without a TTY', async
   expect(output).not.toContain('FATAL: lodash');
   expect(output).toContain('(HIGH) CVE-2021-23337: nodejs-lodash: command injection via template');
   expect(output).toContain('https://avd.aquasec.com/nvd/cve-2021-23337');
+  // Only the title is shown, not the full description
+  expect(output).not.toContain('Lodash versions prior to 4.17.21');
   expect(await Bun.file(join(cwd, 'node_modules/lodash/package.json')).exists()).toBe(false);
 });
 
