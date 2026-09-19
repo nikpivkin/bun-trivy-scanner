@@ -50,6 +50,13 @@ for manual inspection:
 export BUN_TRIVY_SCANNER_REPORT_PATH=/path/to/report.json
 ```
 
+By default, the scanner looks for `trivy` in `PATH`. To use another binary, set
+its path. A relative path is resolved against the project directory:
+
+```bash
+export BUN_TRIVY_SCANNER_TRIVY_PATH=./bin/trivy
+```
+
 ### Trivy configuration (optional)
 
 You can configure Trivy by creating a `trivy.yaml` file in the project root directory

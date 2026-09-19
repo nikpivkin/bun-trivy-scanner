@@ -1,7 +1,7 @@
 import { expect, setDefaultTimeout, test } from 'bun:test';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 setDefaultTimeout(60_000);
 
@@ -120,6 +120,32 @@ test('fails when Trivy is not in PATH', async () => {
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('uses Trivy from a relative BUN_TRIVY_SCANNER_TRIVY_PATH', async () => {
+  const dir = await tempDir();
+
+  try {
+    // A name other than "trivy" makes sure the binary is not found through PATH
+    await symlink(Bun.which('trivy')!, join(dir, 'custom-trivy'));
+    const { output } = await bunAdd('lodash@4.17.20', {
+      PATH: dir,
+      BUN_TRIVY_SCANNER_TRIVY_PATH: relative(cwd, join(dir, 'custom-trivy')),
+    });
+
+    expect(output).toContain('CVE-2021-23337');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('fails when BUN_TRIVY_SCANNER_TRIVY_PATH does not exist', async () => {
+  const { output, exitCode } = await bunAdd('lodash@4.17.20', {
+    BUN_TRIVY_SCANNER_TRIVY_PATH: './missing/trivy',
+  });
+
+  expect(exitCode).toBe(1);
+  expect(output).toContain('Trivy CLI not found at BUN_TRIVY_SCANNER_TRIVY_PATH="./missing/trivy"');
 });
 
 test('fails when Trivy exits with an error', async () => {

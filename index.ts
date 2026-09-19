@@ -1,18 +1,14 @@
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 const reportPath = process.env.BUN_TRIVY_SCANNER_REPORT_PATH;
+const trivyBin = process.env.BUN_TRIVY_SCANNER_TRIVY_PATH;
 
 export const scanner: Bun.Security.Scanner = {
   version: '1',
   async scan(info: { packages: Bun.Security.Package[] }): Promise<Bun.Security.Advisory[]> {
-    const trivyPath = Bun.which('trivy');
-    if (!trivyPath) {
-      throw new Error(
-        'Trivy CLI not found in PATH. Please install Trivy to use this security scanner.',
-      );
-    }
+    const trivyPath = findTrivy();
 
     if (!SEVERITY_ORDER.includes(fatalSeverity)) {
       throw new Error(
@@ -48,6 +44,25 @@ export const scanner: Bun.Security.Scanner = {
     return convert(result);
   },
 };
+
+function findTrivy(): string {
+  if (!trivyBin) {
+    const trivyPath = Bun.which('trivy');
+    if (!trivyPath) {
+      throw new Error(
+        'Trivy CLI not found in PATH. Please install Trivy to use this security scanner.',
+      );
+    }
+    return trivyPath;
+  }
+
+  // Bun.which does not resolve relative paths, so resolve them against the project directory
+  const trivyPath = Bun.which(/[\\/]/.test(trivyBin) ? resolve(trivyBin) : trivyBin);
+  if (!trivyPath) {
+    throw new Error(`Trivy CLI not found at BUN_TRIVY_SCANNER_TRIVY_PATH="${trivyBin}".`);
+  }
+  return trivyPath;
+}
 
 // Builds a minimal CycloneDX 1.6 SBOM with a library component per package
 function buildBom(packages: Bun.Security.Package[]): string {
