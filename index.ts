@@ -2,8 +2,6 @@ import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { Models, Enums, Serialize, Spec } from '@cyclonedx/cyclonedx-library';
-
 const reportPath = process.env.BUN_TRIVY_SCANNER_REPORT_PATH;
 
 export const scanner: Bun.Security.Scanner = {
@@ -51,21 +49,29 @@ export const scanner: Bun.Security.Scanner = {
   },
 };
 
-function buildBom(packages: Bun.Security.Package[]) {
-  const bom = new Models.Bom();
+// Builds a minimal CycloneDX 1.6 SBOM with a library component per package
+function buildBom(packages: Bun.Security.Package[]): string {
+  const components = new Map<string, object>();
 
   for (const p of packages) {
-    const component = new Models.Component(Enums.ComponentType.Library, p.name, {
+    const purl = `pkg:npm/${p.name}@${p.version}`;
+    components.set(purl, {
+      type: 'library',
+      name: p.name,
       version: p.version,
-      purl: `pkg:npm/${p.name}@${p.version}`,
+      'bom-ref': purl,
+      purl,
     });
-    bom.components.add(component);
   }
 
-  const spec = Spec.Spec1dot6;
-  const normalizerFactory = new Serialize.JSON.Normalize.Factory(spec);
-  const serializer = new Serialize.JsonSerializer(normalizerFactory);
-  return serializer.serialize(bom);
+  return JSON.stringify({
+    $schema: 'http://cyclonedx.org/schema/bom-1.6.schema.json',
+    bomFormat: 'CycloneDX',
+    specVersion: '1.6',
+    version: 1,
+    components: [...components.values()],
+    dependencies: [...components.keys()].map((ref) => ({ ref })),
+  });
 }
 
 const fatalSeverity = process.env.BUN_TRIVY_SCANNER_FATAL_SEVERITY?.toUpperCase();

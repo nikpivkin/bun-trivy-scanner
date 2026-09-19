@@ -9,7 +9,7 @@ It runs automatically during dependency installation, addition, or when executin
 ## Features
 
 - Native integration with Bun
-- Small codebase with minimal external dependencies — easier to audit and maintain
+- No npm dependencies, only the Trivy CLI is required
 - Thin wrapper around Trivy
 - Supports the full Trivy feature set
 
