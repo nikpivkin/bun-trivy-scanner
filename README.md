@@ -37,7 +37,7 @@ You can control which vulnerability severity aborts installation by setting an
 export BUN_TRIVY_SCANNER_FATAL_SEVERITY=CRITICAL
 ```
 
-Valid values are: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
+Valid values are: `UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`. The default is `HIGH`.
 
 If a vulnerability with this severity or higher is detected, the installation
 will fail. Otherwise, advisories are reported as warnings and the user can
@@ -49,9 +49,6 @@ for manual inspection:
 ```bash
 export BUN_TRIVY_SCANNER_REPORT_PATH=/path/to/report.json
 ```
-
-If this variable is not set, the scanner will store the report in a temporary
-directory (default behavior).
 
 ### Trivy configuration (optional)
 
@@ -81,6 +78,7 @@ See the Trivy documentation for more details:
 
 - Config file: https://trivy.dev/docs/latest/guide/references/configuration/config-file/
 - Environment variables: https://trivy.dev/docs/latest/guide/configuration/#environment-variables
+- Ignoring vulnerabilities (`.trivyignore`, `.trivyignore.yaml`): https://trivy.dev/docs/latest/guide/configuration/filtering/
 
 ### Trivy logs
 
@@ -108,12 +106,12 @@ bun pm scan
 ❯ bun add lodash@4.17.20
 bun add v1.4.2 (744846f84)
 
-  WARNING: lodash
+  FATAL: lodash
     via  › lodash
     (HIGH) CVE-2021-23337: nodejs-lodash: command injection via template
     https://avd.aquasec.com/nvd/cve-2021-23337
 
-  WARNING: lodash
+  FATAL: lodash
     via  › lodash
     (HIGH) CVE-2026-4800: lodash: lodash: Arbitrary code execution via untrusted input in template imports
     https://avd.aquasec.com/nvd/cve-2026-4800
@@ -133,9 +131,8 @@ bun add v1.4.2 (744846f84)
     (MEDIUM) CVE-2026-2950: lodash: Lodash: Prototype pollution allows deletion of built-in prototype properties via array path bypass
     https://avd.aquasec.com/nvd/cve-2026-2950
 
-5 advisories (5 warnings)
-
-Security warnings found. Continue anyway? [y/N]
+5 advisories (2 fatal, 3 warnings)
+Installation aborted due to fatal security advisories
 ```
 
 ## Development

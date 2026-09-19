@@ -39,12 +39,12 @@ async function tempDir() {
   return mkdtemp(join(tmpdir(), 'bun-trivy-scanner-e2e-'));
 }
 
-test('warns about a vulnerable package and cancels install without a TTY', async () => {
+test('blocks a vulnerable package with HIGH and above as fatal by default', async () => {
   const { output, exitCode } = await bunAdd('lodash@4.17.20');
 
   expect(exitCode).toBe(1);
-  expect(output).toContain('WARNING: lodash');
-  expect(output).not.toContain('FATAL: lodash');
+  expect(output).toMatch(/FATAL: lodash\s+via\s+› lodash\s+\(HIGH\)/);
+  expect(output).toMatch(/WARNING: lodash\s+via\s+› lodash\s+\(MEDIUM\)/);
   expect(output).toContain('(HIGH) CVE-2021-23337: nodejs-lodash: command injection via template');
   expect(output).toContain('https://avd.aquasec.com/nvd/cve-2021-23337');
   // Only the title is shown, not the full description
@@ -52,14 +52,14 @@ test('warns about a vulnerable package and cancels install without a TTY', async
   expect(await Bun.file(join(cwd, 'node_modules/lodash/package.json')).exists()).toBe(false);
 });
 
-test('reports fatal advisories at or above BUN_TRIVY_SCANNER_FATAL_SEVERITY', async () => {
+test('reports advisories below BUN_TRIVY_SCANNER_FATAL_SEVERITY as warnings', async () => {
   const { output, exitCode } = await bunAdd('lodash@4.17.20', {
-    BUN_TRIVY_SCANNER_FATAL_SEVERITY: 'HIGH',
+    BUN_TRIVY_SCANNER_FATAL_SEVERITY: 'CRITICAL',
   });
 
   expect(exitCode).toBe(1);
-  expect(output).toMatch(/FATAL: lodash\s+via\s+› lodash\s+\(HIGH\)/);
-  expect(output).toMatch(/WARNING: lodash\s+via\s+› lodash\s+\(MEDIUM\)/);
+  expect(output).toMatch(/WARNING: lodash\s+via\s+› lodash\s+\(HIGH\)/);
+  expect(output).not.toContain('FATAL: lodash');
 });
 
 test('fails on an invalid BUN_TRIVY_SCANNER_FATAL_SEVERITY', async () => {

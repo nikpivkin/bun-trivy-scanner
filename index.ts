@@ -14,7 +14,7 @@ export const scanner: Bun.Security.Scanner = {
       );
     }
 
-    if (fatalSeverity && !SEVERITY_ORDER.includes(fatalSeverity)) {
+    if (!SEVERITY_ORDER.includes(fatalSeverity)) {
       throw new Error(
         `Invalid BUN_TRIVY_SCANNER_FATAL_SEVERITY value "${fatalSeverity}". ` +
           `Valid values are: ${SEVERITY_ORDER.join(', ')}.`,
@@ -74,14 +74,10 @@ function buildBom(packages: Bun.Security.Package[]): string {
   });
 }
 
-const fatalSeverity = process.env.BUN_TRIVY_SCANNER_FATAL_SEVERITY?.toUpperCase();
+const fatalSeverity = (process.env.BUN_TRIVY_SCANNER_FATAL_SEVERITY || 'HIGH').toUpperCase();
 const SEVERITY_ORDER = ['UNKNOWN', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
 function severityToLevel(sev: string): 'fatal' | 'warn' {
-  if (!fatalSeverity) {
-    return 'warn';
-  }
-
   if (SEVERITY_ORDER.indexOf(sev.toUpperCase()) >= SEVERITY_ORDER.indexOf(fatalSeverity)) {
     return 'fatal';
   }
